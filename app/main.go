@@ -14,8 +14,8 @@ func main() {
 	fmt.Fprint(os.Stdout, "$ ")
 	fmt.Scanln(&i)
 
-	if i != nil {
-		fmt.Fprint(os.Stdout, i, ": command not found")
+	if i != "" {
+		fmt.Fprint(os.Stdout, i, ": command not found\n")
 	}
 
 }
