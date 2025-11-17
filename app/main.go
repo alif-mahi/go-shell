@@ -1,32 +1,26 @@
 package main
 
 import (
-
 	"bufio"
-
 	"fmt"
-
 	"os"
-
 )
 
 func main() {
-var int i = 0
+	i := 0
 	for i == 0 {
-fmt.Fprint(os.Stdout, "$ ")
+		fmt.Fprint(os.Stdout, "$ ")
 
+		command, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		if err != nil {
 
-	command, err := bufio.NewReader(os.Stdin).ReadString('\n')
+			fmt.Fprintln(os.Stderr, "Error reading input:", err)
 
-	if err != nil {
+			os.Exit(1)
 
-		fmt.Fprintln(os.Stderr, "Error reading input:", err)
+		}
 
-		os.Exit(1)
+		fmt.Println(command[:len(command)-1] + ": command not found")
 
 	}
-
-	fmt.Println(command[:len(command)-1] + ": command not found")
-
-	}	
 }
