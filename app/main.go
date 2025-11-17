@@ -10,6 +10,12 @@ var _ = fmt.Fprint
 var _ = os.Stdout
 
 func main() {
-	// TODO: Uncomment the code below to pass the first stage
+	var i string
 	fmt.Fprint(os.Stdout, "$ ")
+	fmt.Scanln(&i)
+
+	if i != nil {
+		fmt.Fprint(os.Stdout, i, ": command not found")
+	}
+
 }
