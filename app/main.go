@@ -25,6 +25,11 @@ func main() {
 		input = strings.TrimSuffix(input, "\n")
 		args := strings.Split(input, " ")
 		command := args[0]
+		commandExists, commandPath := checkPath(command)
+		if commandExists && !slices.Contains(builtInCommands, command){
+			match := command
+		}
+
 		switch command {
 		case "exit":
 			os.Exit(0)
@@ -39,6 +44,8 @@ func main() {
 			} else {
 				fmt.Println(args[1] + ": not found")
 			}
+		case match:
+			runExternal(commandPath, args[1:])
 		default:
 			fmt.Println(input + ": command not found")
 		}
@@ -61,4 +68,16 @@ func checkPath(command string) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+func runExternal(path string, args []string) {
+    cmd := exec.Command(path, args...)
+    cmd.Stdin = os.Stdin
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+
+    err := cmd.Run()
+    if err != nil {
+        fmt.Println("error executing:", err)
+    }
 }
