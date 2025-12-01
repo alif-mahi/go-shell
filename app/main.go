@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"os/exec"
 	"path/filepath"
 )
 
