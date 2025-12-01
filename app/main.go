@@ -33,7 +33,7 @@ func main() {
 			if slices.Contains(builtInCommands, strings.TrimSpace(args[1])) {
 				fmt.Println(strings.TrimSpace(args[1]), "is a shell builtin")
 			} else {
-				fmt.Println(strings.TrimSpace(args[1]) + ": command not found")
+				fmt.Println(strings.TrimSpace(args[1]) + ": not found")
 			}
 		default:
 			fmt.Println(input[:len(input)-1] + ": command not found")
