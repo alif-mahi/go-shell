@@ -86,9 +86,14 @@ func checkPath(command string) (bool, string) {
 }
 
 func runExternal(path string, args []string) {
-	cmd := exec.Command(path, args...)
+	cmd := exec.Command(filepath.Base(path), args...)
+	cmd.Path = path
+
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "error executing:", err)
+	}
 }
