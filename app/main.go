@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"slices"
-	"strings"
 	"os/exec"
 	"path/filepath"
+	"slices"
+	"strings"
 )
 
 func main() {
@@ -26,30 +26,45 @@ func main() {
 		input = strings.TrimSuffix(input, "\n")
 		args := strings.Split(input, " ")
 		command := args[0]
-		commandExists, commandPath := checkPath(command)
-		if commandExists && !slices.Contains(builtInCommands, command){
-			match := command
-		}
 
+		// First: check if it's a built-in command
 		switch command {
 		case "exit":
 			os.Exit(0)
+
 		case "echo":
-			fmt.Println(input[5:])
-		case "type":
-			pathExist, pathLoc := checkPath(args[1])
-			if slices.Contains(builtInCommands, args[1]) {
-				fmt.Println(args[1], "is a shell builtin")
-			} else if pathExist {
-				fmt.Println(args[1], "is", pathLoc)
+			if len(input) > 5 {
+				fmt.Println(input[5:])
 			} else {
-				fmt.Println(args[1] + ": not found")
+				fmt.Println()
 			}
-		case match:
-			runExternal(commandPath, args[1:])
-		default:
-			fmt.Println(input + ": command not found")
+			continue
+
+		case "type":
+			if len(args) < 2 {
+				fmt.Println("type: missing argument")
+				continue
+			}
+			target := args[1]
+
+			if slices.Contains(builtInCommands, target) {
+				fmt.Println(target, "is a shell builtin")
+			} else if ok, loc := checkPath(target); ok {
+				fmt.Println(target, "is", loc)
+			} else {
+				fmt.Println(target + ": not found")
+			}
+			continue
 		}
+
+		// If not a builtin, try running it as an external command
+		if ok, path := checkPath(command); ok {
+			runExternal(path, args[1:])
+			continue
+		}
+
+		// Otherwise: unknown command
+		fmt.Println(command + ": command not found")
 	}
 }
 
@@ -57,13 +72,12 @@ func checkPath(command string) (bool, string) {
 	pathEnv := os.Getenv("PATH")
 	for _, dir := range strings.Split(pathEnv, string(os.PathListSeparator)) {
 		full := filepath.Join(dir, command)
-
 		info, err := os.Stat(full)
 		if err != nil || info.IsDir() {
 			continue
 		}
 
-		// Check if any execute bit is set
+		// Check if executable
 		if info.Mode()&0111 != 0 {
 			return true, full
 		}
@@ -72,13 +86,12 @@ func checkPath(command string) (bool, string) {
 }
 
 func runExternal(path string, args []string) {
-    cmd := exec.Command(path, args...)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
+	cmd := exec.Command(path, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-    err := cmd.Run()
-    if err != nil {
-        fmt.Println("error executing:", err)
-    }
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "error executing:", err)
+	}
 }
