@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"os"
+	"slices"
 	"strings"
+	"path/filepath"
 )
 
 func main() {
@@ -21,22 +22,43 @@ func main() {
 			os.Exit(1)
 		}
 
+		input = strings.TrimSuffix(input, "\n")
 		args := strings.Split(input, " ")
-		command := strings.TrimSpace(args[0])
-
+		command := args[0]
 		switch command {
 		case "exit":
 			os.Exit(0)
 		case "echo":
-			fmt.Println(input[5 : len(input)-1])
+			fmt.Println(input[5:])
 		case "type":
-			if slices.Contains(builtInCommands, strings.TrimSpace(args[1])) {
-				fmt.Println(strings.TrimSpace(args[1]), "is a shell builtin")
+			pathExist, pathLoc := checkPath(args[1])
+			if slices.Contains(builtInCommands, args[1]) {
+				fmt.Println(args[1], "is a shell builtin")
+			} else if pathExist {
+				fmt.Println(args[1], "is", pathLoc)
 			} else {
-				fmt.Println(strings.TrimSpace(args[1]) + ": not found")
+				fmt.Println(args[1] + ": not found")
 			}
 		default:
-			fmt.Println(input[:len(input)-1] + ": command not found")
+			fmt.Println(input + ": command not found")
 		}
 	}
+}
+
+func checkPath(command string) (bool, string) {
+	pathEnv := os.Getenv("PATH")
+	for _, dir := range strings.Split(pathEnv, string(os.PathListSeparator)) {
+		full := filepath.Join(dir, command)
+
+		info, err := os.Stat(full)
+		if err != nil || info.IsDir() {
+			continue
+		}
+
+		// Check if any execute bit is set
+		if info.Mode()&0111 != 0 {
+			return true, full
+		}
+	}
+	return false, ""
 }
