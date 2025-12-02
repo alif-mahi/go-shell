@@ -50,8 +50,16 @@ func main() {
 			continue
 
 		case "cd":
+			path := ""
 			if len(args) > 1 {
-				err := os.Chdir(args[1])
+				if strings.HasPrefix(args[1], "~") {
+					home, _ := os.UserHomeDir()
+					path = path + filepath.Join(home, strings.TrimPrefix(args[1], "~"))
+				} else {
+					path = path + args[1]
+				}
+
+				err := os.Chdir(path)
 
 				if err != nil {
 					fmt.Println("cd: " + args[1] + ": No such file or directory")
