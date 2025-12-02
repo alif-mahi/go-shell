@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	builtInCommands := []string{"echo", "exit", "type"}
+	builtInCommands := []string{"echo", "exit", "type", "pwd"}
 
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -38,6 +38,15 @@ func main() {
 			} else {
 				fmt.Println()
 			}
+			continue
+
+		case "pwd":
+			presentDir, err := os.Getwd()
+
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error getting present working directory: %v\n", err)
+			}
+			fmt.Println(presentDir)
 			continue
 
 		case "type":
