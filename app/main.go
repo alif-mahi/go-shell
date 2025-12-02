@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	builtInCommands := []string{"echo", "exit", "type", "pwd"}
+	builtInCommands := []string{"echo", "exit", "type", "pwd", "cd"}
 
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -47,6 +47,16 @@ func main() {
 				fmt.Fprintf(os.Stderr, "Error getting present working directory: %v\n", err)
 			}
 			fmt.Println(presentDir)
+			continue
+
+		case "cd":
+			if len(args) > 1 {
+				err := os.Chdir(args[1])
+
+				if err != nil {
+					fmt.Println("cd: " + args[1] + ": No such file or directory")
+				}
+			}
 			continue
 
 		case "type":
